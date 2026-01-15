@@ -1,4 +1,4 @@
-# Branch Customer Support Messaging Web Application
+# Customer Support Messaging Web Application
 
 A scalable, real-time customer support messaging system built for financial services companies. This application enables customers to send messages, automatically prioritizes them by urgency, and allows support agents to efficiently manage, search, and respond to customer inquiries in real-time.
 
