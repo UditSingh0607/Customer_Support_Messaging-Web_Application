@@ -46,20 +46,20 @@ const CannedResponsePicker = ({ onSelect }) => {
     }
 
     return (
-        <div className="bg-white rounded-lg shadow-md p-4">
-            <h3 className="text-lg font-semibold text-gray-800 mb-3">
-                Canned Responses
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-8">
+            <h3 className="text-xs font-bold text-branch-navy uppercase tracking-widest mb-6 opacity-70">
+                Response Repository
             </h3>
 
             {/* Category Filter */}
-            <div className="flex flex-wrap gap-2 mb-4">
+            <div className="flex flex-wrap gap-2 mb-6">
                 {categories.map((category) => (
                     <button
                         key={category}
                         onClick={() => setSelectedCategory(category)}
-                        className={`px-3 py-1 rounded-full text-sm font-medium transition-all ${selectedCategory === category
-                                ? 'bg-purple-600 text-white'
-                                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                        className={`px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-widest transition-all border ${selectedCategory === category
+                            ? 'bg-branch-navy text-white border-branch-navy shadow-md'
+                            : 'bg-white text-branch-gray border-slate-200 hover:border-branch-blue hover:text-branch-blue'
                             }`}
                     >
                         {category}
@@ -68,23 +68,23 @@ const CannedResponsePicker = ({ onSelect }) => {
             </div>
 
             {/* Response List */}
-            <div className="space-y-2 max-h-64 overflow-y-auto">
+            <div className="space-y-3 max-h-80 overflow-y-auto pr-2 custom-scrollbar">
                 {filteredResponses.map((response) => (
                     <button
                         key={response.id}
                         onClick={() => handleSelect(response)}
-                        className="w-full text-left p-3 rounded-lg border border-gray-200 hover:bg-purple-50 hover:border-purple-300 transition-all"
+                        className="w-full text-left p-4 rounded-xl border border-slate-100 bg-slate-50 hover:bg-white hover:border-branch-blue hover:shadow-md transition-all group"
                     >
-                        <p className="font-semibold text-gray-800 text-sm mb-1">
+                        <p className="font-bold text-branch-navy text-sm mb-2 group-hover:text-branch-blue">
                             {response.title}
                         </p>
-                        <p className="text-xs text-gray-600 line-clamp-2">
+                        <p className="text-xs text-branch-gray line-clamp-2 leading-relaxed">
                             {response.message_text}
                         </p>
-                        <div className="flex justify-between items-center mt-2">
-                            <span className="text-xs text-gray-500">{response.category}</span>
-                            <span className="text-xs text-gray-400">
-                                Used {response.usage_count} times
+                        <div className="flex justify-between items-center mt-3 pt-3 border-t border-slate-200 border-opacity-50">
+                            <span className="text-[10px] font-bold text-branch-gray uppercase tracking-widest">{response.category}</span>
+                            <span className="text-[10px] font-medium text-branch-gray opacity-60">
+                                Frequency: {response.usage_count}
                             </span>
                         </div>
                     </button>

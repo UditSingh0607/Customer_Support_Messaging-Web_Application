@@ -26,7 +26,7 @@ const SearchBar = ({ onSearch, placeholder = 'Search messages or customer ID...'
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
                     placeholder={placeholder}
-                    className="w-full px-4 py-3 pl-12 pr-12 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent shadow-sm"
+                    className="w-full px-4 py-4 pl-12 pr-12 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-branch-blue focus:border-transparent shadow-sm text-branch-navy placeholder-branch-gray transition-all"
                 />
                 <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400">
                     🔍

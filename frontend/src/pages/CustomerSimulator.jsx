@@ -65,81 +65,81 @@ const CustomerSimulator = () => {
     }, [userId]);
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-green-100 via-teal-100 to-blue-100 p-6">
+        <div className="min-h-screen bg-branch-light p-6 md:p-12">
             <div className="max-w-4xl mx-auto">
                 {/* Header */}
-                <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
+                <div className="mb-10 text-center">
                     <button
                         onClick={() => navigate('/')}
-                        className="mb-4 px-4 py-2 bg-gray-200 text-gray-700 font-semibold rounded-lg hover:bg-gray-300 transition-all"
+                        className="mb-8 px-6 py-2.5 bg-white text-branch-navy font-bold rounded-xl border border-slate-200 hover:bg-slate-50 transition-all shadow-sm"
                     >
-                        ← Back to Agent Portal
+                        ← Back to Agent Command Center
                     </button>
 
-                    <h1 className="text-3xl font-bold bg-gradient-to-r from-green-600 to-teal-600 bg-clip-text text-transparent mb-2">
-                        Customer Simulator
+                    <h1 className="text-4xl font-black text-branch-navy tracking-tight mb-3">
+                        Customer <span className="text-branch-blue">Simulator</span>
                     </h1>
-                    <p className="text-gray-600">
-                        Simulate customer messages to test the support system
+                    <p className="text-branch-gray font-medium text-lg max-w-lg mx-auto">
+                        Utility for generating synthetic customer interactions and testing escalation protocols.
                     </p>
                 </div>
 
                 {/* Message Form */}
-                <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
-                    <h2 className="text-xl font-semibold text-gray-800 mb-4">
-                        Send a Message
+                <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-8 mb-10">
+                    <h2 className="text-xs font-bold text-branch-navy uppercase tracking-widest mb-8 opacity-70">
+                        Signal Generator
                     </h2>
 
-                    <div className="space-y-4">
+                    <div className="space-y-6">
                         <div>
-                            <label className="block text-sm font-semibold text-gray-700 mb-2">
-                                Customer ID (User ID)
+                            <label className="block text-[10px] font-black text-branch-navy uppercase tracking-widest mb-3">
+                                Target Client Identifier
                             </label>
                             <input
                                 type="number"
                                 value={userId}
                                 onChange={(e) => setUserId(e.target.value)}
-                                placeholder="Enter customer ID (e.g., 1001)"
-                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                                placeholder="Enter Target ID (e.g., 1001)"
+                                className="w-full px-5 py-4 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-branch-blue focus:border-transparent transition-all bg-slate-50 text-branch-navy font-bold"
                             />
                         </div>
 
                         <div>
-                            <label className="block text-sm font-semibold text-gray-700 mb-2">
-                                Message
+                            <label className="block text-[10px] font-black text-branch-navy uppercase tracking-widest mb-3">
+                                Payload Content
                             </label>
                             <textarea
                                 value={messageBody}
                                 onChange={(e) => setMessageBody(e.target.value)}
-                                placeholder="Type your message here..."
+                                placeholder="Enter synthetic customer message payload..."
                                 rows={5}
-                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 resize-none"
+                                className="w-full px-5 py-4 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-branch-blue focus:border-transparent resize-none bg-slate-50 text-branch-navy leading-relaxed"
                             />
                         </div>
 
                         <button
                             onClick={handleSendMessage}
                             disabled={sending}
-                            className="w-full px-6 py-3 bg-gradient-to-r from-green-600 to-teal-600 text-white font-semibold rounded-lg hover:from-green-700 hover:to-teal-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md hover:shadow-lg"
+                            className="w-full px-8 py-4 bg-branch-navy text-white font-black uppercase tracking-widest rounded-xl hover:bg-branch-slate disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg active:scale-[0.98]"
                         >
-                            {sending ? 'Sending...' : 'Send Message'}
+                            {sending ? 'Transmitting...' : 'Dispatch Signal'}
                         </button>
                     </div>
                 </div>
 
                 {/* Example Messages */}
-                <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
-                    <h2 className="text-xl font-semibold text-gray-800 mb-4">
-                        Example Messages (Click to Use)
+                <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-8 mb-10">
+                    <h2 className="text-xs font-bold text-branch-navy uppercase tracking-widest mb-6 opacity-70">
+                        Template Library
                     </h2>
-                    <div className="space-y-2">
+                    <div className="grid grid-cols-1 gap-3">
                         {exampleMessages.map((msg, index) => (
                             <button
                                 key={index}
                                 onClick={() => setMessageBody(msg)}
-                                className="w-full text-left p-3 rounded-lg border border-gray-200 hover:bg-green-50 hover:border-green-300 transition-all"
+                                className="w-full text-left p-4 rounded-xl border border-slate-100 bg-slate-50 hover:bg-white hover:border-branch-blue hover:shadow-md transition-all group"
                             >
-                                <p className="text-sm text-gray-700">{msg}</p>
+                                <p className="text-sm text-branch-navy font-medium group-hover:text-branch-blue">{msg}</p>
                             </button>
                         ))}
                     </div>
@@ -147,62 +147,59 @@ const CustomerSimulator = () => {
 
                 {/* Customer Messages History */}
                 {userId && (
-                    <div className="bg-white rounded-lg shadow-lg p-6">
-                        <h2 className="text-xl font-semibold text-gray-800 mb-4">
-                            Your Messages (Customer #{userId})
+                    <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-8">
+                        <h2 className="text-xs font-bold text-branch-navy uppercase tracking-widest mb-8 opacity-70">
+                            Transmission Log (Client #{userId})
                         </h2>
 
                         {loadingMessages ? (
-                            <div className="text-center py-8">
-                                <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
-                                <p className="mt-2 text-gray-600">Loading messages...</p>
+                            <div className="text-center py-12">
+                                <div className="inline-block animate-spin rounded-full h-10 w-10 border-b-2 border-branch-blue"></div>
+                                <p className="mt-4 text-branch-gray font-bold uppercase tracking-widest text-xs">Accessing Logs...</p>
                             </div>
                         ) : customerMessages.length === 0 ? (
-                            <p className="text-gray-500 text-center py-8">
-                                No messages yet. Send your first message above!
+                            <p className="text-branch-gray text-center py-12 font-medium italic">
+                                No historical data found for this identifier.
                             </p>
                         ) : (
-                            <div className="space-y-4">
+                            <div className="space-y-6">
                                 {customerMessages.map((msg) => (
                                     <div
                                         key={msg.id}
-                                        className="border border-gray-200 rounded-lg p-4"
+                                        className="border border-slate-100 bg-slate-50 rounded-xl p-6 transition-all hover:bg-white hover:border-branch-blue hover:shadow-sm"
                                     >
-                                        <div className="flex justify-between items-start mb-2">
+                                        <div className="flex justify-between items-start mb-4">
                                             <span
-                                                className={`px-2 py-1 rounded text-xs font-medium ${getStatusColor(
+                                                className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${getStatusColor(
                                                     msg.status
                                                 )}`}
                                             >
-                                                {msg.status}
+                                                {msg.status.replace('_', ' ')}
                                             </span>
-                                            <span className="text-xs text-gray-500">
+                                            <span className="text-[10px] font-bold text-branch-gray uppercase tracking-widest">
                                                 {new Date(msg.created_at).toLocaleString()}
                                             </span>
                                         </div>
 
-                                        <div className="mb-2">
-                                            <p className="text-sm font-semibold text-gray-700 mb-1">
-                                                Your Message:
+                                        <div className="mb-4">
+                                            <p className="text-[10px] font-bold text-branch-gray uppercase tracking-widest mb-2 opacity-60">
+                                                CLIENT_PAYLOAD
                                             </p>
-                                            <p className="text-gray-800">{msg.message_body}</p>
+                                            <p className="text-branch-navy font-medium">{msg.message_body}</p>
                                         </div>
 
                                         {msg.response && (
-                                            <div className="mt-3 pt-3 border-t border-gray-300 bg-green-50 rounded p-3">
-                                                <p className="text-sm font-semibold text-gray-700 mb-1">
-                                                    Agent Response ({msg.assigned_to}):
+                                            <div className="mt-4 pt-4 border-t border-slate-200 border-opacity-50 bg-white bg-opacity-50 rounded-b-xl -mx-6 -mb-6 px-6 pb-6">
+                                                <p className="text-[10px] font-bold text-branch-blue uppercase tracking-widest mb-2">
+                                                    SUPPORT_RESPONSE <span className="text-branch-gray font-normal">by {msg.assigned_to}</span>
                                                 </p>
-                                                <p className="text-gray-800">{msg.response}</p>
-                                                <p className="text-xs text-gray-500 mt-1">
-                                                    Responded at:{' '}
-                                                    {new Date(msg.responded_at).toLocaleString()}
-                                                </p>
+                                                <p className="text-branch-slate text-sm leading-relaxed">{msg.response}</p>
                                             </div>
                                         )}
 
-                                        <div className="mt-2 text-xs text-gray-500">
-                                            Urgency: {msg.urgency_level} (Score: {msg.urgency_score})
+                                        <div className="mt-4 text-[10px] font-black text-branch-gray uppercase tracking-tighter flex gap-4">
+                                            <span>PRIORITY: {msg.urgency_level}</span>
+                                            <span>VECTOR_SCORE: {msg.urgency_score}</span>
                                         </div>
                                     </div>
                                 ))}

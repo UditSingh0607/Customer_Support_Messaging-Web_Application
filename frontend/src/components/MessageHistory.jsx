@@ -19,43 +19,40 @@ const MessageHistory = ({ messages }) => {
     }
 
     return (
-        <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-gray-800 mb-4">
-                Message History ({messages.length})
-            </h3>
+        <div className="space-y-6">
             {messages.map((msg) => (
                 <div
                     key={msg.id}
-                    className="bg-gray-50 rounded-lg p-4 border border-gray-200"
+                    className="bg-slate-50 rounded-xl p-6 border border-slate-100 relative group transition-all hover:bg-white hover:border-branch-blue hover:shadow-sm"
                 >
-                    <div className="flex justify-between items-start mb-2">
+                    <div className="flex justify-between items-start mb-4">
                         <span
-                            className={`px-2 py-1 rounded text-xs font-medium ${getStatusColor(
+                            className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${getStatusColor(
                                 msg.status
                             )}`}
                         >
-                            {msg.status}
+                            {msg.status.replace('_', ' ')}
                         </span>
-                        <span className="text-xs text-gray-500">
+                        <span className="text-[10px] font-bold text-branch-gray uppercase tracking-widest">
                             {formatDate(msg.created_at)}
                         </span>
                     </div>
 
-                    <div className="mb-2">
-                        <p className="text-sm font-semibold text-gray-700 mb-1">
-                            Customer Message:
+                    <div className="mb-4">
+                        <p className="text-[10px] font-bold text-branch-gray uppercase tracking-widest mb-2 opacity-60">
+                            Client Message
                         </p>
-                        <p className="text-gray-800">{msg.message_body}</p>
+                        <p className="text-branch-navy font-medium leading-relaxed">{msg.message_body}</p>
                     </div>
 
                     {msg.response && (
-                        <div className="mt-3 pt-3 border-t border-gray-300">
-                            <p className="text-sm font-semibold text-gray-700 mb-1">
-                                Agent Response ({msg.assigned_to}):
+                        <div className="mt-4 pt-4 border-t border-slate-200 border-opacity-50">
+                            <p className="text-[10px] font-bold text-branch-blue uppercase tracking-widest mb-2">
+                                Support Response <span className="text-branch-gray font-normal">by {msg.assigned_to}</span>
                             </p>
-                            <p className="text-gray-800">{msg.response}</p>
-                            <p className="text-xs text-gray-500 mt-1">
-                                Responded at: {formatDate(msg.responded_at)}
+                            <p className="text-branch-slate text-sm leading-relaxed">{msg.response}</p>
+                            <p className="text-[10px] text-branch-gray mt-2 font-medium italic opacity-60">
+                                Dispatched: {formatDate(msg.responded_at)}
                             </p>
                         </div>
                     )}

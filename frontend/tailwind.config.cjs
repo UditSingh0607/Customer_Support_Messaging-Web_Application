@@ -7,12 +7,13 @@ export default {
     theme: {
         extend: {
             colors: {
-                'branch-purple': '#6C5CE7',
-                'branch-blue': '#0984E3',
-                'branch-green': '#00B894',
-                'branch-red': '#D63031',
-                'branch-orange': '#E17055',
-                'branch-yellow': '#FDCB6E',
+                'branch-navy': '#0F172A',
+                'branch-slate': '#1E293B',
+                'branch-blue': '#2563EB',
+                'branch-light': '#F8FAFC',
+                'branch-gray': '#64748B',
+                'branch-success': '#059669',
+                'branch-error': '#DC2626',
             },
         },
     },

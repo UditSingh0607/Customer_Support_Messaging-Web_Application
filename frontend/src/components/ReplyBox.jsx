@@ -33,9 +33,9 @@ const ReplyBox = ({ onSend, initialValue = '', placeholder = 'Type your response
     }, [initialValue]);
 
     return (
-        <div className="bg-white rounded-lg shadow-md p-4">
-            <h3 className="text-lg font-semibold text-gray-800 mb-3">
-                Compose Response
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-8">
+            <h3 className="text-xs font-bold text-branch-navy uppercase tracking-widest mb-6 opacity-70">
+                Compose Official Response
             </h3>
 
             <textarea
@@ -43,19 +43,23 @@ const ReplyBox = ({ onSend, initialValue = '', placeholder = 'Type your response
                 onChange={(e) => setMessage(e.target.value)}
                 placeholder={placeholder}
                 rows={6}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
+                className="w-full px-6 py-4 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-branch-blue focus:border-transparent resize-none text-branch-navy bg-slate-50 transition-all"
             />
 
-            <div className="flex justify-between items-center mt-3">
-                <span className="text-sm text-gray-500">
-                    {message.length} characters
+            <div className="flex justify-between items-center mt-6">
+                <span className="text-xs font-medium text-branch-gray uppercase tracking-widest">
+                    {message.length} CHARACTERS
                 </span>
                 <button
                     onClick={handleSend}
                     disabled={sending || !message.trim()}
-                    className="px-6 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white font-semibold rounded-lg hover:from-purple-700 hover:to-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md hover:shadow-lg"
+                    className="px-8 py-3 bg-branch-navy text-white font-bold rounded-xl hover:bg-branch-slate disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md active:scale-95 flex items-center gap-2"
                 >
-                    {sending ? 'Sending...' : 'Send Response'}
+                    {sending ? (
+                        <>
+                            <span className="animate-spin">🌀</span> Processing...
+                        </>
+                    ) : 'Dispatch Response'}
                 </button>
             </div>
         </div>

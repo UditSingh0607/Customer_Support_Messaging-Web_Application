@@ -8,12 +8,12 @@ const FilterBar = ({ filters, onFilterChange }) => {
     const statuses = ['ALL', 'UNREAD', 'IN_PROGRESS', 'RESOLVED'];
 
     return (
-        <div className="bg-white rounded-lg shadow-md p-4 mb-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6 mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 {/* Urgency Filter */}
                 <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Filter by Urgency
+                    <label className="block text-xs font-bold text-branch-navy uppercase tracking-widest mb-4 opacity-70">
+                        Priority Level
                     </label>
                     <div className="flex flex-wrap gap-2">
                         {urgencyLevels.map((level) => (
@@ -25,10 +25,10 @@ const FilterBar = ({ filters, onFilterChange }) => {
                                         urgency: level === 'ALL' ? '' : level,
                                     })
                                 }
-                                className={`px-3 py-1 rounded-full text-sm font-medium transition-all ${(level === 'ALL' && !filters.urgency) ||
-                                        filters.urgency === level
-                                        ? 'bg-purple-600 text-white'
-                                        : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                                className={`px-4 py-2 rounded-lg text-sm font-bold transition-all border ${(level === 'ALL' && !filters.urgency) ||
+                                    filters.urgency === level
+                                    ? 'bg-branch-navy text-white border-branch-navy shadow-md'
+                                    : 'bg-white text-branch-gray border-slate-200 hover:border-branch-blue hover:text-branch-blue'
                                     }`}
                             >
                                 {level}
@@ -39,8 +39,8 @@ const FilterBar = ({ filters, onFilterChange }) => {
 
                 {/* Status Filter */}
                 <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Filter by Status
+                    <label className="block text-xs font-bold text-branch-navy uppercase tracking-widest mb-4 opacity-70">
+                        Message Status
                     </label>
                     <div className="flex flex-wrap gap-2">
                         {statuses.map((status) => (
@@ -52,13 +52,13 @@ const FilterBar = ({ filters, onFilterChange }) => {
                                         status: status === 'ALL' ? '' : status,
                                     })
                                 }
-                                className={`px-3 py-1 rounded-full text-sm font-medium transition-all ${(status === 'ALL' && !filters.status) ||
-                                        filters.status === status
-                                        ? 'bg-purple-600 text-white'
-                                        : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                                className={`px-4 py-2 rounded-lg text-sm font-bold transition-all border ${(status === 'ALL' && !filters.status) ||
+                                    filters.status === status
+                                    ? 'bg-branch-navy text-white border-branch-navy shadow-md'
+                                    : 'bg-white text-branch-gray border-slate-200 hover:border-branch-blue hover:text-branch-blue'
                                     }`}
                             >
-                                {status}
+                                {status.replace('_', ' ')}
                             </button>
                         ))}
                     </div>

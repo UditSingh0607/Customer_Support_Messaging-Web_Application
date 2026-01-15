@@ -42,26 +42,25 @@ const Dashboard = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-purple-100 via-blue-100 to-pink-100 p-6">
+        <div className="min-h-screen bg-branch-light p-6 md:p-12">
             {/* Header */}
-            <div className="max-w-7xl mx-auto mb-8">
-                <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
-                    <div className="flex justify-between items-center mb-4">
-                        <div>
-                            <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
-                                Branch Customer Support
-                            </h1>
-                            <p className="text-gray-600 mt-1">Agent Portal Dashboard</p>
-                        </div>
-                        <button
-                            onClick={() => navigate('/customer')}
-                            className="px-4 py-2 bg-gradient-to-r from-green-500 to-teal-500 text-white font-semibold rounded-lg hover:from-green-600 hover:to-teal-600 transition-all shadow-md"
-                        >
-                            🧪 Customer Simulator
-                        </button>
+            <div className="max-w-7xl mx-auto mb-10">
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+                    <div>
+                        <h1 className="text-4xl font-extrabold text-branch-navy tracking-tight">
+                            Branch <span className="text-branch-blue">Support</span>
+                        </h1>
+                        <p className="text-branch-gray mt-2 text-lg">Agent Command Center</p>
                     </div>
+                    <button
+                        onClick={() => navigate('/customer')}
+                        className="px-6 py-3 bg-branch-navy text-white font-semibold rounded-lg hover:bg-branch-slate transition-all shadow-sm flex items-center gap-2"
+                    >
+                        <span>🧪</span> Customer Simulator
+                    </button>
+                </div>
 
-                    {/* Search Bar */}
+                <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-8 mb-8">
                     <SearchBar onSearch={handleSearch} />
                 </div>
 
@@ -69,28 +68,28 @@ const Dashboard = () => {
                 <FilterBar filters={filters} onFilterChange={handleFilterChange} />
 
                 {/* Stats */}
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-                    <div className="bg-white rounded-lg shadow-md p-4">
-                        <p className="text-sm text-gray-600">Total Messages</p>
-                        <p className="text-2xl font-bold text-purple-600">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
+                    <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
+                        <p className="text-sm font-medium text-branch-gray uppercase tracking-wider mb-1">Total Messages</p>
+                        <p className="text-3xl font-bold text-branch-navy">
                             {displayMessages.length}
                         </p>
                     </div>
-                    <div className="bg-white rounded-lg shadow-md p-4">
-                        <p className="text-sm text-gray-600">Critical</p>
-                        <p className="text-2xl font-bold text-red-600">
+                    <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
+                        <p className="text-sm font-medium text-branch-gray uppercase tracking-wider mb-1">Critical Priority</p>
+                        <p className="text-3xl font-bold text-branch-error">
                             {displayMessages.filter((m) => m.urgency_level === 'CRITICAL').length}
                         </p>
                     </div>
-                    <div className="bg-white rounded-lg shadow-md p-4">
-                        <p className="text-sm text-gray-600">Unread</p>
-                        <p className="text-2xl font-bold text-blue-600">
+                    <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
+                        <p className="text-sm font-medium text-branch-gray uppercase tracking-wider mb-1">Pending Unread</p>
+                        <p className="text-3xl font-bold text-branch-blue">
                             {displayMessages.filter((m) => m.status === 'UNREAD').length}
                         </p>
                     </div>
-                    <div className="bg-white rounded-lg shadow-md p-4">
-                        <p className="text-sm text-gray-600">Resolved</p>
-                        <p className="text-2xl font-bold text-green-600">
+                    <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
+                        <p className="text-sm font-medium text-branch-gray uppercase tracking-wider mb-1">Successfully Resolved</p>
+                        <p className="text-3xl font-bold text-branch-success">
                             {displayMessages.filter((m) => m.status === 'RESOLVED').length}
                         </p>
                     </div>
