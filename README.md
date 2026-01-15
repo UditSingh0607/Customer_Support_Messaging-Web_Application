@@ -360,9 +360,6 @@ Assignment_BI/
 
 This project is created for educational and demonstration purposes.
 
-## 👥 Author
-
-Built as an internship assignment demonstrating full-stack development skills with real-time features and production-ready architecture.
 
 ---
 
