@@ -1,24 +1,21 @@
 /**
- * Urgency Scoring Service
- * Calculates urgency score based on multiple weighted dimensions
+ * Urgency Scoring Service - Version 2.0 (Scoring 2.0)
+ * Calculates urgency score based on context, intent, and frustrations
  */
 
-// A. Content keywords with scores
-const KEYWORDS = {
+// A. Content intent phrases
+const INTENT_PHRASES = {
     CRITICAL: {
         score: 40,
-        keywords: [
-            'loan disbursed',
-            'loan disbursement',
+        phrases: [
+            'unauthorized transaction',
             'money not received',
-            'approved',
-            'rejected',
-            'fraud',
-            'unauthorized',
-            'hacked',
-            'stolen',
-            'someone used',
+            'loan disbursed but',
+            'account hacked',
+            'funds stolen',
             'don\'t recognize',
+            'someone used',
+            'security breach',
         ],
     },
     HIGH: {
@@ -32,86 +29,106 @@ const KEYWORDS = {
             'error',
             'crb',
             'batch number',
-            'batch no',
             'delayed',
             'disappointed',
-            'desperately',
         ],
     },
     MEDIUM: {
         score: 15,
         keywords: [
+            'approved',
+            'rejected',
             'dispute',
             'incorrect',
-            'update information',
+            'update',
             'how to',
             'help me',
-            'validate',
-            'clarify',
             'reason',
             'review',
         ],
     },
     STANDARD: {
         score: 5,
-        keywords: [], // default score
+        keywords: [],
     },
 };
 
-// B. Time sensitivity keywords
+// B. De-escalation signals (Negative points)
+const DEESCALATION = [
+    'not urgent',
+    'no rush',
+    'whenever you can',
+    'just checking',
+    'for your information',
+    'fyi',
+    'no hurry'
+];
+
+// C. Time sensitivity keywords
 const TIME_SENSITIVITY = {
     URGENT: { score: 15, keywords: ['immediately', 'urgent', 'asap', 'today', 'now', 'right away', 'instantly', 'desperate'] },
     SOON: { score: 10, keywords: ['soon', 'quickly', 'tomorrow'] },
-    NORMAL: { score: 5, keywords: ['when possible', 'thanks'] },
 };
 
+// D. Money context filters
+const MONEY_CONTEXT = ['amount', 'paid', 'charged', 'debited', 'credited', 'balance', 'loan', 'repayment', 'money', 'cash', 'ksh', 'sh'];
+
 /**
- * Calculate content keyword score
+ * Calculate content score based on intent phrases and keywords
  */
 function calculateContentScore(messageBody) {
     const lowerMessage = messageBody.toLowerCase();
     let score = 0;
-    let matchedKeywords = [];
+    let matchedTerms = [];
 
-    // Check CRITICAL keywords
-    for (const keyword of KEYWORDS.CRITICAL.keywords) {
-        if (lowerMessage.includes(keyword)) {
-            score = Math.max(score, KEYWORDS.CRITICAL.score);
-            matchedKeywords.push(keyword);
+    // Check CRITICAL phrases (Exact phrase matching for intent)
+    for (const phrase of INTENT_PHRASES.CRITICAL.phrases) {
+        if (lowerMessage.includes(phrase)) {
+            score = Math.max(score, INTENT_PHRASES.CRITICAL.score);
+            matchedTerms.push(phrase);
         }
     }
 
     // Check HIGH keywords
-    for (const keyword of KEYWORDS.HIGH.keywords) {
-        if (lowerMessage.includes(keyword)) {
-            // Additive scoring if multiple categories match (capped at 45)
-            if (score < KEYWORDS.CRITICAL.score) {
-                score = Math.max(score, KEYWORDS.HIGH.score);
-            } else if (!matchedKeywords.includes(keyword)) {
+    for (const keyword of INTENT_PHRASES.HIGH.keywords) {
+        if (new RegExp(`\\b${keyword}\\b`).test(lowerMessage)) {
+            if (score < INTENT_PHRASES.CRITICAL.score) {
+                score = Math.max(score, INTENT_PHRASES.HIGH.score);
+            } else if (!matchedTerms.includes(keyword)) {
                 score = Math.min(45, score + 5);
             }
-            matchedKeywords.push(keyword);
+            matchedTerms.push(keyword);
         }
     }
 
     // Check MEDIUM keywords
-    for (const keyword of KEYWORDS.MEDIUM.keywords) {
-        if (lowerMessage.includes(keyword)) {
+    for (const keyword of INTENT_PHRASES.MEDIUM.keywords) {
+        if (new RegExp(`\\b${keyword}\\b`).test(lowerMessage)) {
             if (score === 0) {
-                score = KEYWORDS.MEDIUM.score;
-            } else if (!matchedKeywords.includes(keyword)) {
+                score = INTENT_PHRASES.MEDIUM.score;
+            } else if (!matchedTerms.includes(keyword)) {
                 score = Math.min(50, score + 2);
             }
-            matchedKeywords.push(keyword);
+            matchedTerms.push(keyword);
         }
     }
 
-    // Default score if no keywords matched
-    if (score === 0) {
-        score = KEYWORDS.STANDARD.score;
-    }
+    if (score === 0) score = INTENT_PHRASES.STANDARD.score;
 
-    return { score, matchedKeywords };
+    return { score, matchedTerms };
+}
+
+/**
+ * Calculate de-escalation penalty
+ */
+function calculateDeescalationPenalty(messageBody) {
+    const lowerMessage = messageBody.toLowerCase();
+    for (const phrase of DEESCALATION) {
+        if (lowerMessage.includes(phrase)) {
+            return { penalty: -15, phrase };
+        }
+    }
+    return { penalty: 0, phrase: null };
 }
 
 /**
@@ -119,179 +136,164 @@ function calculateContentScore(messageBody) {
  */
 function calculateTimeSensitivityScore(messageBody) {
     const lowerMessage = messageBody.toLowerCase();
-    let score = 0;
-    let matchedKeywords = [];
 
-    // Check URGENT time keywords
+    // Check for de-escalation first to avoid "not urgent" matching "urgent"
+    const deescalation = calculateDeescalationPenalty(messageBody);
+    if (deescalation.penalty < 0) return { score: 0, matched: [] };
+
+    let score = 0;
+    let matched = [];
+
     for (const keyword of TIME_SENSITIVITY.URGENT.keywords) {
-        if (lowerMessage.includes(keyword)) {
+        if (new RegExp(`\\b${keyword}\\b`).test(lowerMessage)) {
             score = Math.max(score, TIME_SENSITIVITY.URGENT.score);
-            matchedKeywords.push(keyword);
+            matched.push(keyword);
         }
     }
 
-    // Check SOON keywords
-    for (const keyword of TIME_SENSITIVITY.SOON.keywords) {
-        if (lowerMessage.includes(keyword)) {
-            if (score === 0) {
-                score = TIME_SENSITIVITY.SOON.score;
-            } else if (!matchedKeywords.includes(keyword)) {
-                score = Math.min(20, score + 5);
+    if (score < 15) {
+        for (const keyword of TIME_SENSITIVITY.SOON.keywords) {
+            if (new RegExp(`\\b${keyword}\\b`).test(lowerMessage)) {
+                score = Math.max(score, TIME_SENSITIVITY.SOON.score);
+                matched.push(keyword);
             }
-            matchedKeywords.push(keyword);
         }
     }
 
-    return { score, matchedKeywords };
+    return { score, matched };
 }
 
 /**
- * Calculate message frequency score based on customer history
+ * Calculate message frequency based on burst count in last hour
  */
-function calculateFrequencyScore(messageCount, recentMessages, currentTimestamp = new Date()) {
-    let score = 0;
+function calculateFrustrationScore(recentMessages, currentTimestamp = new Date()) {
+    if (!recentMessages || recentMessages.length < 1) return 0;
 
-    // If no recent messages, no frequency bonus
-    if (!recentMessages || recentMessages.length === 0) return 0;
+    const now = new Date(currentTimestamp).getTime();
+    const lastHourCount = recentMessages.filter(m => {
+        const t = new Date(m.created_at).getTime();
+        return (now - t) < (60 * 60 * 1000) && (now - t) >= 0;
+    }).length;
 
-    const referenceTime = new Date(currentTimestamp);
-    const lastMsgTime = new Date(recentMessages[0].created_at);
-
-    // Calculate time difference in minutes
-    const timeDiffMinutes = (referenceTime.getTime() - lastMsgTime.getTime()) / (1000 * 60);
-
-    // If sent within last 30 mins → +10 (indicates high frustration)
-    if (timeDiffMinutes > 0 && timeDiffMinutes < 30) {
-        score = 10;
-    }
-    // If sent within last 24 hours → +5
-    else if (timeDiffMinutes > 0 && timeDiffMinutes < 1440) {
-        score = 5;
-    }
-
-    return score;
+    if (lastHourCount >= 3) return 15; // High frustration
+    if (lastHourCount >= 1) return 7;  // Significant activity
+    return 0;
 }
 
 /**
- * Extract and score financial amounts from message
+ * Context-aware financial amount scoring
  */
-function calculateFinancialAmountScore(messageBody) {
-    // Regex to find currency amounts (supports formats like: 10000, 10,000, $10000, ₹10000, Ksh 500)
+function calculateFinancialScore(messageBody) {
+    const lowerMessage = messageBody.toLowerCase();
+    const hasContext = MONEY_CONTEXT.some(k => lowerMessage.includes(k));
+
+    // Support Ksh, Sh, $, ₹, or plain numbers if context exists
     const amountRegex = /(?:₹|Rs\.?|\$|USD|INR|Ksh|Sh\.?)\s*(\d{1,3}(?:,\d{3})*|\d+)(?:\.\d{2})?/gi;
     const matches = messageBody.match(amountRegex);
 
-    if (!matches) {
-        // Check for plain numbers that might be amounts in context
+    let maxAmount = 0;
+    if (matches) {
+        const amounts = matches.map(m => parseFloat(m.replace(/[₹Rs.$,KshSh\s]/gi, '')));
+        maxAmount = Math.max(...amounts);
+    } else if (hasContext) {
         const plainNumbers = messageBody.match(/\b\d{3,}\b/g);
         if (plainNumbers) {
-            const maxPlain = Math.max(...plainNumbers.map(n => parseInt(n)));
-            if (maxPlain > 100) return { score: 10, amount: maxPlain };
+            maxAmount = Math.max(...plainNumbers.map(n => parseInt(n)));
         }
-        return { score: 0, amount: null };
     }
 
-    // Extract numeric values
-    const amounts = matches.map((match) => {
-        const numStr = match.replace(/[₹Rs.$,KshSh\s]/gi, '');
-        return parseFloat(numStr);
-    });
-
-    // Get the highest amount
-    const maxAmount = Math.max(...amounts);
+    if (maxAmount === 0) return { score: 0, amount: null };
 
     let score = 0;
-    if (maxAmount >= 20000) {
-        score = 30;
-    } else if (maxAmount >= 5000) {
-        score = 20;
-    } else if (maxAmount >= 1000) {
-        score = 15;
-    } else if (maxAmount > 0) {
-        score = 10;
-    }
+    if (maxAmount >= 20000) score = 30;
+    else if (maxAmount >= 5000) score = 20;
+    else if (maxAmount >= 1000) score = 15;
+    else if (maxAmount > 0) score = 10;
 
     return { score, amount: maxAmount };
 }
 
 /**
- * Calculate customer tier score
+ * Conditional Tier scoring
  */
-function calculateCustomerTierScore(customerData) {
-    // Default all customers → +10 (giving more weight to the fact it's a customer)
-    return 10;
+function calculateTierScore(customerTier) {
+    if (!customerTier) return 0;
+    const tier = customerTier.toUpperCase();
+    if (tier === 'VIP') return 10;
+    if (tier === 'STANDARD') return 5;
+    return 0;
 }
 
 /**
- * Map total score to urgency level
+ * Map total score to level
  */
 function mapScoreToLevel(totalScore) {
-    if (totalScore >= 70) return 'CRITICAL';
-    if (totalScore >= 45) return 'HIGH';
-    if (totalScore >= 20) return 'MEDIUM';
+    if (totalScore >= 75) return 'CRITICAL';
+    if (totalScore >= 50) return 'HIGH';
+    if (totalScore >= 25) return 'MEDIUM';
     return 'LOW';
 }
 
 /**
- * Main function to calculate urgency score
+ * Main calculation function
  */
-async function calculateUrgencyScore(messageBody, userId, recentMessages = [], currentTimestamp = new Date()) {
+async function calculateUrgencyScore(messageBody, userId, recentMessages = [], currentTimestamp = new Date(), customerTier = 'STANDARD') {
     const reasons = [];
 
-    // A. Content keywords (0-45)
-    const contentResult = calculateContentScore(messageBody);
-    const contentScore = contentResult.score;
-    if (contentResult.matchedKeywords.length > 0) {
-        reasons.push(
-            `Content: ${[...new Set(contentResult.matchedKeywords)].join(', ')} (+${contentScore})`
-        );
+    // 1. Content (0-45)
+    const content = calculateContentScore(messageBody);
+    if (content.matchedTerms.length > 0) {
+        reasons.push(`Intent: ${[...new Set(content.matchedTerms)].join(', ')} (+${content.score})`);
     }
 
-    // B. Time sensitivity (0-20)
-    const timeResult = calculateTimeSensitivityScore(messageBody);
-    const timeScore = timeResult.score;
-    if (timeResult.matchedKeywords.length > 0) {
-        reasons.push(
-            `Time: ${[...new Set(timeResult.matchedKeywords)].join(', ')} (+${timeScore})`
-        );
+    // 2. De-escalation (Negative)
+    const deescalation = calculateDeescalationPenalty(messageBody);
+    if (deescalation.penalty < 0) {
+        reasons.push(`Deescalation: ${deescalation.phrase} (${deescalation.penalty})`);
     }
 
-    // C. Message frequency (0-10)
-    const frequencyScore = calculateFrequencyScore(
-        recentMessages.length,
-        recentMessages,
-        currentTimestamp
-    );
-    if (frequencyScore > 0) {
-        reasons.push(`Freq (+${frequencyScore})`);
+    // 3. Time (0-15)
+    const time = calculateTimeSensitivityScore(messageBody);
+    if (time.matched.length > 0) {
+        reasons.push(`Time: ${[...new Set(time.matched)].join(', ')} (+${time.score})`);
     }
 
-    // D. Financial amount (0-30)
-    const financialResult = calculateFinancialAmountScore(messageBody);
-    const financialScore = financialResult.score;
-    if (financialResult.amount) {
-        reasons.push(
-            `Amt: ${financialResult.amount} (+${financialScore})`
-        );
+    // 4. Frustration/Freq (0-15)
+    const freqScore = calculateFrustrationScore(recentMessages, currentTimestamp);
+    if (freqScore > 0) {
+        reasons.push(`Burst Activity (+${freqScore})`);
     }
 
-    // E. Customer tier (default 10)
-    const tierScore = calculateCustomerTierScore(null);
-    reasons.push(`Tier (+${tierScore})`);
+    // 5. Financial (0-30)
+    const financial = calculateFinancialScore(messageBody);
+    if (financial.amount) {
+        reasons.push(`Money Context: ₹${financial.amount} (+${financial.score})`);
+    }
 
-    // Calculate total score
-    const totalScore =
-        contentScore + timeScore + frequencyScore + financialScore + tierScore;
+    // 6. Tier (0-10)
+    const tierScore = calculateTierScore(customerTier);
+    if (tierScore > 0) {
+        reasons.push(`Tier: ${customerTier} (+${tierScore})`);
+    }
 
-    // Map to urgency level
+    // Final total
+    const totalScore = Math.max(0, Math.min(100,
+        content.score + deescalation.penalty + time.score + freqScore + financial.score + tierScore
+    ));
+
+    // Urgency Level
     const urgencyLevel = mapScoreToLevel(totalScore);
+
+    // Confidence Metric
+    const signalCount = [content.score > 5, time.score > 0, freqScore > 0, financial.score > 0].filter(Boolean).length;
+    const confidence = signalCount >= 3 ? 'HIGH' : signalCount === 2 ? 'MEDIUM' : 'LOW';
 
     return {
         urgency_score: totalScore,
         urgency_level: urgencyLevel,
         urgency_reason: reasons.join(' | '),
+        confidence
     };
 }
 
-module.exports = {
-    calculateUrgencyScore,
-};
+module.exports = { calculateUrgencyScore };

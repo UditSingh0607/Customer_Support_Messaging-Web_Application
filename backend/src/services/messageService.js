@@ -6,25 +6,28 @@ const { calculateUrgencyScore } = require('./urgencyScorer');
  */
 async function createMessage(userId, messageBody) {
     try {
-        // Get recent messages from this user for frequency calculation
-        const recentMessagesResult = await db.query(
-            'SELECT * FROM messages WHERE user_id = $1 ORDER BY created_at DESC LIMIT 10',
+        // Get customer info (to get tier)
+        const customerResult = await db.query(
+            'SELECT * FROM customers WHERE user_id = $1',
             [userId]
         );
-        const recentMessages = recentMessagesResult.rows;
+        const customer = customerResult.rows[0];
+        const tier = customer ? customer.tier : 'STANDARD';
 
         // Calculate urgency score
         const urgencyData = await calculateUrgencyScore(
             messageBody,
             userId,
-            recentMessages
+            recentMessages,
+            new Date(), // current time
+            tier
         );
 
         // Insert message
         const result = await db.query(
             `INSERT INTO messages 
-       (user_id, message_body, urgency_score, urgency_level, urgency_reason, status) 
-       VALUES ($1, $2, $3, $4, $5, 'UNREAD') 
+       (user_id, message_body, urgency_score, urgency_level, urgency_reason, status, confidence) 
+       VALUES ($1, $2, $3, $4, $5, 'UNREAD', $6) 
        RETURNING *`,
             [
                 userId,
@@ -32,6 +35,7 @@ async function createMessage(userId, messageBody) {
                 urgencyData.urgency_score,
                 urgencyData.urgency_level,
                 urgencyData.urgency_reason,
+                urgencyData.confidence,
             ]
         );
 

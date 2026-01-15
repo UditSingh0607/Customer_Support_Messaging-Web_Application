@@ -42,19 +42,24 @@ async function importCSV(filePath) {
                         );
                         const recentMessages = recentMessagesResult.rows;
 
+                        // Simulate a tier for this customer during historical import
+                        // (Assigning some as VIP for demonstration purposes)
+                        const tier = userId % 7 === 0 ? 'VIP' : 'STANDARD';
+
                         // Calculate urgency score
                         const urgencyData = await calculateUrgencyScore(
                             messageBody,
                             userId,
                             recentMessages,
-                            timestamp // Pass the CSV timestamp
+                            timestamp, // Pass the CSV timestamp
+                            tier
                         );
 
-                        // Insert message with provided timestamp
+                        // Insert message with provided timestamp and confidence
                         await db.query(
                             `INSERT INTO messages 
-               (user_id, message_body, urgency_score, urgency_level, urgency_reason, status, created_at) 
-               VALUES ($1, $2, $3, $4, $5, 'UNREAD', $6)`,
+               (user_id, message_body, urgency_score, urgency_level, urgency_reason, status, created_at, confidence) 
+               VALUES ($1, $2, $3, $4, $5, 'UNREAD', $6, $7)`,
                             [
                                 userId,
                                 messageBody,
@@ -62,16 +67,17 @@ async function importCSV(filePath) {
                                 urgencyData.urgency_level,
                                 urgencyData.urgency_reason,
                                 timestamp, // Use timestamp from CSV
+                                urgencyData.confidence,
                             ]
                         );
 
-                        // Update customer total_messages count
+                        // Insert or update customer total_messages count and tier
                         await db.query(
-                            `INSERT INTO customers (user_id, total_messages) 
-               VALUES ($1, 1) 
+                            `INSERT INTO customers (user_id, total_messages, tier) 
+               VALUES ($1, 1, $2) 
                ON CONFLICT (user_id) 
-               DO UPDATE SET total_messages = customers.total_messages + 1`,
-                            [userId]
+               DO UPDATE SET total_messages = customers.total_messages + 1, tier = $2`,
+                            [userId, tier]
                         );
 
                         successCount++;

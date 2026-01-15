@@ -10,6 +10,7 @@ CREATE TABLE IF NOT EXISTS messages (
   assigned_to VARCHAR(100),
   response TEXT,
   responded_at TIMESTAMP,
+  confidence VARCHAR(20) DEFAULT 'LOW',
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -19,6 +20,7 @@ CREATE TABLE IF NOT EXISTS customers (
   user_id INTEGER PRIMARY KEY,
   account_status VARCHAR(50) DEFAULT 'ACTIVE',
   loan_status VARCHAR(50),
+  tier VARCHAR(20) DEFAULT 'STANDARD',
   total_messages INTEGER DEFAULT 0,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
