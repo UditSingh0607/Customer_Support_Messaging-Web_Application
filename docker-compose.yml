@@ -29,7 +29,7 @@ services:
     environment:
       PORT: 5000
       DATABASE_URL: postgresql://postgres:postgres@postgres:5432/branch_support
-      NODE_ENV: production
+      NODE_ENV: production # Set to production to simulate real environment, but SSL is conditionally disabled in code for docker
       FRONTEND_URL: http://localhost:3000
     ports:
       - "5000:5000"

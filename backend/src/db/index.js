@@ -4,7 +4,7 @@ require('dotenv').config();
 // Create PostgreSQL connection pool
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: process.env.NODE_ENV === 'production' || process.env.DATABASE_URL?.includes('render.com')
+  ssl: (process.env.NODE_ENV === 'production' && !process.env.DATABASE_URL?.includes('postgres:5432')) || process.env.DATABASE_URL?.includes('render.com')
     ? { rejectUnauthorized: false }
     : false,
   max: 20,
