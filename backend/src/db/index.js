@@ -1,15 +1,21 @@
 const { Pool } = require('pg');
 require('dotenv').config();
 
+// Database SSL configuration
+const useSSL = process.env.DB_SSL === 'true' ||
+  (process.env.NODE_ENV === 'production' &&
+    !process.env.DATABASE_URL?.includes('localhost') &&
+    !process.env.DATABASE_URL?.includes('postgres'));
+
+console.log(`📡 Database attempt: ${process.env.DATABASE_URL?.split('@')[1] || 'URL hidden'} | SSL: ${useSSL}`);
+
 // Create PostgreSQL connection pool
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: (process.env.NODE_ENV === 'production' && !process.env.DATABASE_URL?.includes('postgres:5432')) || process.env.DATABASE_URL?.includes('render.com')
-    ? { rejectUnauthorized: false }
-    : false,
+  ssl: useSSL ? { rejectUnauthorized: false } : false,
   max: 20,
   idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 2000,
+  connectionTimeoutMillis: 5000,
 });
 
 // Test connection
