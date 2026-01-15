@@ -46,7 +46,8 @@ async function importCSV(filePath) {
                         const urgencyData = await calculateUrgencyScore(
                             messageBody,
                             userId,
-                            recentMessages
+                            recentMessages,
+                            timestamp // Pass the CSV timestamp
                         );
 
                         // Insert message with provided timestamp
